@@ -4,6 +4,7 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE OverloadedLists #-}
+{-# LANGUAGE TupleSections #-}
 
 ----------------------------------------------------------------------
 -- |
@@ -52,9 +53,6 @@ import Web.Slack.Util
 -- text
 import Data.Text (Text)
 
-import Data.Maybe (maybeToList)
-import Data.Monoid
-
 
 -- |
 --
@@ -84,12 +82,19 @@ $(deriveFromJSON (jsonOpts "historyReq") ''HistoryReq)
 
 instance ToForm HistoryReq where
   -- can't use genericToForm because slack expects booleans as 0/1
-  toForm HistoryReq{..} =
-      [ ("channel", toQueryParam historyReqChannel)
-      , ("count", toQueryParam historyReqCount)
-      , ("inclusive", toQueryParam (if historyReqInclusive then 1::Int else 0))
-      ] <> (maybeToList ((\a -> ("latest", toQueryParam a)) <$> historyReqLatest)) <> (maybeToList ((\a -> ("oldest", toQueryParam a)) <$> historyReqOldest))
-
+  toForm HistoryReq{..} = a
+    where
+      a :: Form
+      a = 
+        [ ("channel", toQueryParam historyReqChannel)
+        , ("count", toQueryParam historyReqCount)
+        , ("inclusive", toQueryParam (if historyReqInclusive then 1::Int else 0))
+        ]
+--      b :: Form
+--      b = ("latest" :: Text, ) . toQueryParam <$> maybeToList historyReqLatest
+--      b = maybeToList ((\a -> ("latest", toQueryParam a)) <$> historyReqLatest)      
+        -- ++ (maybeToList ((\a -> ("oldest", toQueryParam a)) <$> historyReqOldest))
+  
 
 -- |
 --
