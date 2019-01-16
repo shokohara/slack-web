@@ -52,6 +52,9 @@ import Web.Slack.Util
 -- text
 import Data.Text (Text)
 
+import Data.Maybe (maybeToList)
+import Data.Monoid
+
 
 -- |
 --
@@ -84,10 +87,8 @@ instance ToForm HistoryReq where
   toForm HistoryReq{..} =
       [ ("channel", toQueryParam historyReqChannel)
       , ("count", toQueryParam historyReqCount)
-      , ("latest", toQueryParam historyReqLatest)
-      , ("oldest", toQueryParam historyReqOldest)
       , ("inclusive", toQueryParam (if historyReqInclusive then 1::Int else 0))
-      ]
+      ] <> (maybeToList ((\a -> ("latest", toQueryParam a)) <$> historyReqLatest)) <> (maybeToList ((\a -> ("oldest", toQueryParam a)) <$> historyReqOldest))
 
 
 -- |
